@@ -1,70 +1,53 @@
-# OilyGiant: selección de región para nuevos pozos petroleros
+# OilyGiant - Elección de región para nuevos pozos de petróleo
 
-Análisis para decidir en cuál de tres regiones debe la compañía **OilyGiant** perforar 200 pozos nuevos. Combina un modelo de **regresión lineal** que predice las reservas con una simulación **bootstrap** que estima el beneficio y el riesgo de pérdidas.
+Proyecto para decidir en cuál de tres regiones conviene abrir 200 pozos nuevos de petróleo. Usé regresión lineal para predecir las reservas y bootstrapping para calcular la ganancia y el riesgo de pérdida.
 
-## 📊 Resultado
+## Resultado
 
-| Región | RMSE del modelo | Beneficio medio | IC 95 % | Riesgo de pérdida |
+| Región | RMSE | Ganancia promedio | Intervalo 95% | Riesgo de pérdida |
 |---|---|---|---|---|
-| 0 | 37.7 | 4.32 M USD | (−0.81, 9.41) M | 5.5 % ❌ |
-| **1** | **0.9** | **4.78 M USD** | **(0.52, 8.98) M** | **2.0 % ✅** |
-| 2 | 40.0 | 3.22 M USD | (−1.73, 8.44) M | 12.3 % ❌ |
+| 0 | 37.7 | 4.32 M USD | -0.81 a 9.41 M | 5.5% |
+| **1** | **0.9** | **4.78 M USD** | **0.52 a 8.98 M** | **2.0%** |
+| 2 | 40.0 | 3.22 M USD | -1.73 a 8.44 M | 12.3% |
 
-**Recomendación: región 1.** Es la única que cumple el requisito de riesgo de pérdida menor al 2.5 % y, además, tiene el mayor beneficio esperado. Aunque sus reservas medias son menores, el modelo las predice con mucha precisión, así que los pozos elegidos son realmente buenos.
+**Recomiendo la región 1**, porque es la única con riesgo de pérdida menor al 2.5% y tiene la ganancia promedio más alta. Aunque tiene menos reservas en promedio, el modelo la predice casi sin error, así que los pozos que elige son realmente buenos.
 
-## 🎯 Condiciones del negocio
+## Condiciones
 
-- En cada región se exploran **500 puntos** y se eligen los **200 mejores** según el modelo.
-- Presupuesto: **100 M USD** para los 200 pozos.
-- Ingreso: **4 500 USD** por unidad de producto (1 000 barriles). Cada pozo necesita ≈ 111.1 mil barriles para cubrir su coste.
-- Se descartan las regiones con un riesgo de pérdida ≥ 2.5 %.
+- En cada región se exploran 500 puntos y se eligen los 200 mejores.
+- Presupuesto: 100 millones de USD para los 200 pozos.
+- Cada 1000 barriles dejan 4500 USD, así que un pozo necesita al menos 111.1 mil barriles para no perder dinero.
+- Solo se descartan las regiones con riesgo de pérdida mayor o igual a 2.5%.
 
-## 🗃️ Datos
+## Datos
 
-Tres archivos en `data/raw/` (`geo_data_0.csv`, `geo_data_1.csv`, `geo_data_2.csv`), uno por región, con 100 000 puntos de exploración cada uno:
+Tres archivos en `data/raw/` (`geo_data_0.csv`, `geo_data_1.csv`, `geo_data_2.csv`), uno por región, con 100 000 puntos cada uno:
 
-| Columna | Descripción |
-|---|---|
-| `id` | Identificador del pozo |
-| `f0`, `f1`, `f2` | Características geológicas (anonimizadas) |
-| `product` | Volumen de reservas (miles de barriles) |
+- `id`: identificador del pozo
+- `f0`, `f1`, `f2`: características geológicas
+- `product`: reservas en miles de barriles
 
-## ⚙️ Metodología
+## Qué hice
 
-1. **Revisión de datos:** nulos, duplicados (se eliminan los `id` repetidos con valores distintos), distribuciones y correlaciones.
-2. **Modelo por región:** regresión lineal con división 75/25 y evaluación con RMSE.
-3. **Punto de equilibrio:** reservas mínimas por pozo para no tener pérdidas.
-4. **Beneficio:** se eligen los pozos con mayor reserva **predicha** y se suman sus reservas **reales**.
-5. **Bootstrap (1 000 simulaciones):** beneficio medio, intervalo de confianza del 95 % y riesgo de pérdida.
+1. Revisé los datos y eliminé los `id` que estaban repetidos con valores distintos.
+2. Entrené una regresión lineal por región (75% entrenamiento, 25% validación) y la evalué con RMSE.
+3. Calculé la ganancia eligiendo los 200 pozos con mayor reserva predicha.
+4. Hice 1000 simulaciones con bootstrapping para calcular la ganancia promedio, el intervalo de confianza y el riesgo de pérdida.
 
-## 📁 Estructura del proyecto
+**Algo que corregí:** en la primera versión la función de ganancia tomaba un solo pozo en lugar de los 200 mejores, por eso todas las regiones daban pérdida. Al corregirlo, la conclusión cambió.
 
-```
-Onlygiant/
-├── data/
-│   └── raw/                              # Datos de exploración por región
-├── notebooks/
-│   └── oilygiant_well_selection.ipynb    # Análisis completo
-├── requirements.txt
-└── README.md
-```
-
-## 🚀 Cómo ejecutarlo
-
-Requisitos: Python 3.11 o superior.
+## Cómo ejecutarlo
 
 ```bash
 git clone https://github.com/dixonpa/Onlygiant.git
 cd Onlygiant
 python -m venv .venv
-# Windows
-.venv\Scripts\activate
-# macOS / Linux
-source .venv/bin/activate
+.venv\Scripts\activate        # en Windows
+source .venv/bin/activate     # en Mac/Linux
 pip install -r requirements.txt
 jupyter notebook notebooks/oilygiant_well_selection.ipynb
 ```
 
-## 🛠️ Tecnologías
+## Herramientas
 
-Python · pandas · NumPy · scikit-learn · Matplotlib · seaborn · Jupyter
+Python, pandas, NumPy, scikit-learn, matplotlib, seaborn.
