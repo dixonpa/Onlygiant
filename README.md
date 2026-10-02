@@ -71,4 +71,4 @@ Python, pandas, NumPy, scikit-learn, matplotlib, seaborn.
 
 ## Author
 
-Paulo Alvarez · [LinkedIn](https://www.linkedin.com/in/paulocealva) · [Portfolio](https://dixonpa.github.io/) · palvarez17@gmail.com
+Paulo Alvarez · [LinkedIn](https://www.linkedin.com/in/paulocealva) · [Portfolio](https://dixonpa.github.io/) · palvareza17@gmail.com
