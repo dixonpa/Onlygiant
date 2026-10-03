@@ -1,42 +1,74 @@
-# **Onlygiant**
+**English** | [Español](README.es.md)
 
-Proyecto para determinar el pozo petrolero más factible para su explotación a partir de datos geológicos y económicos.
+# OilyGiant - Choosing a Region for New Oil Wells
 
+Project to decide which of three regions is the best place to open 200 new oil wells. I used linear regression to predict the reserves and bootstrapping to estimate the profit and the risk of losses.
 
-## 📌 Descripción
+## Result
 
-**Onlygiant** es un proyecto de análisis de datos cuyo objetivo es identificar cuál de varios pozos prospectivos de petróleo ofrece la mejor combinación de reservas estimadas y viabilidad económica para su explotación. Se utilizan datos geológicos (volumen, área, espesor) y parámetros económicos (precio del barril, costo de perforación, tasa de descuento) para calcular indicadores como el Valor Presente Neto (VPN) y la Tasa Interna de Retorno (TIR).
+| Region | RMSE | Average profit | 95% interval | Risk of loss |
+|---|---|---|---|---|
+| 0 | 37.7 | 4.32 M USD | -0.81 to 9.41 M | 5.5% |
+| **1** | **0.9** | **4.78 M USD** | **0.52 to 8.98 M** | **2.0%** |
+| 2 | 40.0 | 3.22 M USD | -1.73 to 8.44 M | 12.3% |
 
----
+**I recommend region 1**, because it is the only one with a risk of loss below 2.5% and it has the highest average profit. Even though it has lower reserves on average, the model predicts them almost without error, so the wells it picks are really good.
 
-## 🗃️ Datos
+![Profit distribution](results/figures/profit_distribution.png)
 
-Los datos se encuentran en tres archivos CSV:
+## Business conditions
 
-- `geo_data_0.csv`  
-- `geo_data_1.csv`  
-- `geo_data_2.csv`  
+- In each region 500 points are explored and the best 200 are selected.
+- Budget: 100 million USD for the 200 wells.
+- Each 1,000 barrels bring 4,500 USD, so a well needs at least 111.1 thousand barrels to break even.
+- Regions with a risk of loss of 2.5% or more are discarded.
 
-Cada uno contiene las propiedades geológicas y petrofísicas de distintos conjuntos de pozos:  
-- Coordenadas y área de drenaje  
-- Espesor neto de la formación  
-- Porosidad y saturación de petróleo  
-- Factor volumétrico de formación  
+## Data
 
----
+Three files in `data/raw/` (`geo_data_0.csv`, `geo_data_1.csv`, `geo_data_2.csv`), one per region, with 100,000 points each:
 
-## ⚙️ Metodología
+- `id`: well identifier
+- `f0`, `f1`, `f2`: geological features
+- `product`: reserves in thousands of barrels
 
-1. **Carga y unificación de datos** en un único DataFrame.  
-2. **Análisis exploratorio** para verificar valores faltantes y rangos físicos.  
-3. **Cálculo de reservas in situ** usando la fórmula:
-           Volumen [STB] = Área · Espesor neto · Porosidad · Saturación · Factor
-4. **Evaluación económica** de cada pozo:  
-- Cálculo de flujo de caja anual estimado  
-- Valor Presente Neto (VPN)  
-- Tasa Interna de Retorno (TIR)  
-5. **Selección del pozo óptimo** según criterios de VPN máximo y TIR mínimo aceptable.  
-6. **Visualización** de resultados con gráficos de barras, curva de acumulación y ranking de pozos.
+## What I did
 
----
+1. Checked the data and removed the `id`s that were repeated with different values.
+2. Trained one linear regression per region (75% train, 25% validation) and evaluated it with RMSE.
+3. Calculated the profit by choosing the 200 wells with the highest predicted reserves.
+4. Ran 1,000 bootstrap simulations to get the average profit, the confidence interval and the risk of loss.
 
+**Something I fixed:** in the first version the profit function took only one well instead of the best 200, so every region showed a loss. After fixing it, the conclusion changed.
+
+## Project structure
+
+```
+Onlygiant/
+├── data/raw/                              # data by region
+├── notebooks/
+│   └── oilygiant_well_selection.ipynb     # full analysis
+├── results/figures/                       # charts
+└── requirements.txt
+```
+
+## How to run it
+
+```bash
+git clone https://github.com/dixonpa/Onlygiant.git
+cd Onlygiant
+python -m venv .venv
+.venv\Scripts\activate        # on Windows
+source .venv/bin/activate     # on Mac/Linux
+pip install -r requirements.txt
+jupyter notebook notebooks/oilygiant_well_selection.ipynb
+```
+
+The notebook and charts are in Spanish.
+
+## Tools
+
+Python, pandas, NumPy, scikit-learn, matplotlib, seaborn.
+
+## Author
+
+Paulo Alvarez · [LinkedIn](https://www.linkedin.com/in/paulocealva) · [Portfolio](https://dixonpa.github.io/) · palvareza17@gmail.com
